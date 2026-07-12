@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button"
 interface CreateProjectDialogProps {
   open: boolean
   formName: string
-  slug: string
+  roomId: string
   isLoading: boolean
   onFormNameChange: (value: string) => void
   onClose: () => void
@@ -24,7 +24,7 @@ interface CreateProjectDialogProps {
 export function CreateProjectDialog({
   open,
   formName,
-  slug,
+  roomId,
   isLoading,
   onFormNameChange,
   onClose,
@@ -49,10 +49,10 @@ export function CreateProjectDialog({
             className="text-copy-primary"
             autoFocus
           />
-          {slug && (
+          {roomId && (
             <p className="text-xs text-copy-muted">
-              Slug:{" "}
-              <span className="font-mono text-copy-secondary">{slug}</span>
+              Room ID:{" "}
+              <span className="font-mono text-copy-secondary">{roomId}</span>
             </p>
           )}
         </div>
@@ -62,7 +62,7 @@ export function CreateProjectDialog({
           </Button>
           <Button
             onClick={onCreate}
-            disabled={!formName.trim() || !slug || isLoading}
+            disabled={!formName.trim() || !roomId || isLoading}
           >
             Create
           </Button>

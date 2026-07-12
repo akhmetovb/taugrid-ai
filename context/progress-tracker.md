@@ -8,7 +8,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Goal
 
-- Feature 05: Prisma data models, client singleton, and migration — complete
+- Feature 07: Wire editor home — complete
 
 ## Completed
 
@@ -17,6 +17,8 @@ Update this file whenever the current phase, active feature, or implementation s
 - Feature 03: Auth — `ClerkProvider` wraps root layout with dark theme from `@clerk/ui/themes` and CSS variable overrides. `proxy.ts` at root uses `clerkMiddleware` with `createRouteMatcher` to protect all non-public routes. Sign-in (`app/sign-in/[[...sign-in]]/page.tsx`) and sign-up (`app/sign-up/[[...sign-up]]/page.tsx`) pages use two-panel layout (left: logo + tagline + feature list, right: Clerk form; small screens: form only). Root `app/page.tsx` redirects authenticated users to `/editor`, unauthenticated to `/sign-in`. `UserButton` added to editor navbar right section. `@clerk/ui` installed.
 - Feature 04: Project Dialogs — `hooks/use-project-dialogs.ts` centralizes dialog state, form state, and loading state with mock project data. `app/editor/page.tsx` updated with editor home screen (heading, description, New Project button). Three dialogs added: `components/editor/create-project-dialog.tsx` (name input + live slug preview), `components/editor/rename-project-dialog.tsx` (prefilled input, auto-focus, Enter submits), `components/editor/delete-project-dialog.tsx` (destructive confirm, no input). `components/editor/project-sidebar.tsx` updated with project items, rename/delete actions on owned projects only, and mobile backdrop scrim. All wired through `useProjectDialogs` hook in the editor page.
 - Feature 05: Prisma — `prisma/models/project.prisma` defines `ProjectStatus` enum, `Project` model (ownerId, name, description, status, canvasJsonPath, timestamps, indexes on ownerId and createdAt), and `ProjectCollaborator` model (projectId, email, createdAt, cascade delete, unique on project/email, indexes on email and projectId/createdAt). `lib/prisma.ts` exports a cached singleton that branches on DATABASE_URL: `prisma+postgres://` uses Accelerate via `@prisma/extension-accelerate`, otherwise uses `@prisma/adapter-pg` directly. Migration `20260712093238_init` applied and client generated to `app/generated/prisma`.
+- Feature 06: Project API routes — `app/api/projects/route.ts` (GET lists owner's projects ordered by createdAt desc; POST creates with defaulted name "Untitled Project"), `app/api/projects/[projectId]/route.ts` (PATCH renames, DELETE deletes). Auth via Clerk `auth()`: 401 for unauthenticated, 403 for non-owner mutations. `npm run build` passes.
+- Feature 07: Wire editor home — `lib/project-data.ts` exports `SidebarProject` interface and `getOwnedProjects`/`getSharedProjects` helpers (Prisma, server-only). `hooks/use-project-actions.ts` manages dialog state and real mutations: create calls `POST /api/projects` with a slugified name + 5-char random suffix as the room ID, then navigates to `/editor/[roomId]`; rename calls `PATCH` and refreshes; delete calls `DELETE`, redirects to `/editor` if deleting the active workspace, otherwise refreshes. `app/editor/page.tsx` converted to async Server Component — fetches owned and shared projects via Clerk `auth()` + `currentUser()` and passes them to `EditorHomeClient`. `app/editor/editor-home-client.tsx` is the extracted `"use client"` shell with sidebar, dialogs, and sidebar-open state. `components/editor/project-sidebar.tsx` updated to accept separate `ownedProjects`/`sharedProjects` arrays of `SidebarProject`. `components/editor/create-project-dialog.tsx` updated: `slug` prop renamed to `roomId`, label changed to "Room ID:". `POST /api/projects` updated to accept an optional `id` field (validated against `^[a-z0-9-]+$`) so the project ID and Liveblocks room ID stay aligned. `npm run build` passes.
 
 ## In Progress
 
@@ -24,7 +26,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Next Up
 
-- Feature 06: (to be defined in next feature spec)
+- Feature 08: (to be defined in next feature spec)
 
 ## Open Questions
 
