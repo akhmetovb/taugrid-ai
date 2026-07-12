@@ -45,7 +45,7 @@ export function RenameProjectDialog({
             onFormNameChange(e.target.value)
           }
           onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-            if (e.key === "Enter" && formName.trim()) onRename()
+            if (e.key === "Enter" && formName.trim() && !isLoading) onRename()
           }}
           className="text-copy-primary"
           autoFocus

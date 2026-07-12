@@ -65,9 +65,11 @@ export function useProjectDialogs() {
   function handleCreate() {
     const name = formName.trim()
     if (!name) return
+    const finalSlug = slug || toSlug(name)
+    if (!finalSlug) return
     setProjects((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), name, slug: toSlug(name), owned: true },
+      { id: crypto.randomUUID(), name, slug: finalSlug, owned: true },
     ])
     closeDialog()
   }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { EditorNavbar } from "@/components/editor/editor-navbar"
@@ -11,7 +11,13 @@ import { DeleteProjectDialog } from "@/components/editor/delete-project-dialog"
 import { useProjectDialogs } from "@/hooks/use-project-dialogs"
 
 export default function EditorPage() {
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  useEffect(() => {
+    if (window.matchMedia("(min-width: 768px)").matches) {
+      setSidebarOpen(true)
+    }
+  }, [])
 
   const {
     projects,

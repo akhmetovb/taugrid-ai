@@ -62,7 +62,7 @@ export function CreateProjectDialog({
           </Button>
           <Button
             onClick={onCreate}
-            disabled={!formName.trim() || isLoading}
+            disabled={!formName.trim() || !slug || isLoading}
           >
             Create
           </Button>
