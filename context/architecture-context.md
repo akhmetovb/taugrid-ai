@@ -11,7 +11,9 @@
 | Canvas           | Liveblocks + React Flow | Real-time collaborative canvas, presence, and cursors          |
 | Background tasks | Trigger.dev             | Durable AI generation workflows                                |
 | Artifact storage | Vercel Blob             | Canvas snapshots and generated Markdown specs                  |
-| Twin View        | Mapbox                  | 2D/3D geospatial panel, that layers energy system layout       |                  |
+| Twin View        | Mapbox                  | 2D/3D geospatial panel, that layers energy system layout       |
+
+
 
 ## System Boundaries
 
