@@ -8,21 +8,22 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Goal
 
-- Feature 04: (to be defined in next feature spec)
+- Feature 04: Project dialogs and sidebar actions — complete
 
 ## Completed
 
 - Feature 01: Design System — shadcn/ui initialized (Tailwind v4), Button/Card/Dialog/Input/Tabs/Textarea/ScrollArea added, dark theme tokens set in globals.css, lib/utils.ts cn() helper in place, lucide-react installed.
 - Feature 02: Editor Chrome — `components/editor/editor-navbar.tsx` (fixed top bar, sidebar toggle with PanelLeftOpen/PanelLeftClose, dark bg + border) and `components/editor/project-sidebar.tsx` (floating overlay, slide-in from left, Projects title + close button, My Projects / Shared tabs with empty states, New Project button). Dialog pattern ready via existing shadcn Dialog wired to dark theme tokens.
 - Feature 03: Auth — `ClerkProvider` wraps root layout with dark theme from `@clerk/ui/themes` and CSS variable overrides. `proxy.ts` at root uses `clerkMiddleware` with `createRouteMatcher` to protect all non-public routes. Sign-in (`app/sign-in/[[...sign-in]]/page.tsx`) and sign-up (`app/sign-up/[[...sign-up]]/page.tsx`) pages use two-panel layout (left: logo + tagline + feature list, right: Clerk form; small screens: form only). Root `app/page.tsx` redirects authenticated users to `/editor`, unauthenticated to `/sign-in`. `UserButton` added to editor navbar right section. `@clerk/ui` installed.
+- Feature 04: Project Dialogs — `hooks/use-project-dialogs.ts` centralizes dialog state, form state, and loading state with mock project data. `app/editor/page.tsx` updated with editor home screen (heading, description, New Project button). Three dialogs added: `components/editor/create-project-dialog.tsx` (name input + live slug preview), `components/editor/rename-project-dialog.tsx` (prefilled input, auto-focus, Enter submits), `components/editor/delete-project-dialog.tsx` (destructive confirm, no input). `components/editor/project-sidebar.tsx` updated with project items, rename/delete actions on owned projects only, and mobile backdrop scrim. All wired through `useProjectDialogs` hook in the editor page.
 
 ## In Progress
 
-- None yet.
+- None.
 
 ## Next Up
 
-- Feature 04: (to be defined in next feature spec)
+- Feature 05: (to be defined in next feature spec)
 
 ## Open Questions
 
