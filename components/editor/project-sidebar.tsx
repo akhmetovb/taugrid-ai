@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { Pencil, Plus, Trash2, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -7,6 +8,7 @@ import type { SidebarProject } from "@/lib/project-data"
 
 interface ProjectSidebarProps {
   isOpen: boolean
+  activeRoomId?: string
   ownedProjects: SidebarProject[]
   sharedProjects: SidebarProject[]
   onClose: () => void
@@ -17,6 +19,7 @@ interface ProjectSidebarProps {
 
 export function ProjectSidebar({
   isOpen,
+  activeRoomId,
   ownedProjects,
   sharedProjects,
   onClose,
@@ -70,41 +73,50 @@ export function ProjectSidebar({
                 </div>
               ) : (
                 <ul className="mt-1 flex flex-col gap-0.5">
-                  {ownedProjects.map((project) => (
-                    <li key={project.id}>
-                      <div className="group flex items-center gap-2 px-2 py-2 rounded-xl hover:bg-elevated cursor-pointer">
-                        <span className="flex-1 text-sm text-copy-primary truncate">
-                          {project.name}
-                        </span>
-                        <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button
-                            variant="ghost"
-                            size="icon-xs"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              onOpenRename(project)
-                            }}
-                            className="text-copy-muted hover:text-copy-primary"
-                            aria-label={`Rename ${project.name}`}
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon-xs"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              onOpenDelete(project)
-                            }}
-                            className="text-copy-muted hover:text-state-error"
-                            aria-label={`Delete ${project.name}`}
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-                        </div>
-                      </div>
-                    </li>
-                  ))}
+                  {ownedProjects.map((project) => {
+                    const isActive = project.id === activeRoomId
+                    return (
+                      <li key={project.id}>
+                        <Link
+                          href={`/editor/${project.id}`}
+                          className={`group flex items-center gap-2 px-2 py-2 rounded-xl hover:bg-elevated ${isActive ? "bg-accent-dim" : ""}`}
+                        >
+                          <span className={`h-2 w-2 shrink-0 rounded-full ${isActive ? "bg-brand" : "bg-transparent"}`} />
+                          <span className={`flex-1 text-sm truncate ${isActive ? "text-copy-primary font-medium" : "text-copy-primary"}`}>
+                            {project.name}
+                          </span>
+                          <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                              variant="ghost"
+                              size="icon-xs"
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                onOpenRename(project)
+                              }}
+                              className="text-copy-muted hover:text-copy-primary"
+                              aria-label={`Rename ${project.name}`}
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon-xs"
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                onOpenDelete(project)
+                              }}
+                              className="text-copy-muted hover:text-state-error"
+                              aria-label={`Delete ${project.name}`}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        </Link>
+                      </li>
+                    )
+                  })}
                 </ul>
               )}
             </TabsContent>
@@ -115,15 +127,22 @@ export function ProjectSidebar({
                 </div>
               ) : (
                 <ul className="mt-1 flex flex-col gap-0.5">
-                  {sharedProjects.map((project) => (
-                    <li key={project.id}>
-                      <div className="flex items-center gap-2 px-2 py-2 rounded-xl hover:bg-elevated cursor-pointer">
-                        <span className="flex-1 text-sm text-copy-primary truncate">
-                          {project.name}
-                        </span>
-                      </div>
-                    </li>
-                  ))}
+                  {sharedProjects.map((project) => {
+                    const isActive = project.id === activeRoomId
+                    return (
+                      <li key={project.id}>
+                        <Link
+                          href={`/editor/${project.id}`}
+                          className={`flex items-center gap-2 px-2 py-2 rounded-xl hover:bg-elevated ${isActive ? "bg-accent-dim" : ""}`}
+                        >
+                          <span className={`h-2 w-2 shrink-0 rounded-full ${isActive ? "bg-brand" : "bg-transparent"}`} />
+                          <span className={`flex-1 text-sm truncate ${isActive ? "text-copy-primary font-medium" : "text-copy-primary"}`}>
+                            {project.name}
+                          </span>
+                        </Link>
+                      </li>
+                    )
+                  })}
                 </ul>
               )}
             </TabsContent>
