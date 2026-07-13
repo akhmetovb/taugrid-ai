@@ -72,23 +72,29 @@ export function ShareDialog({ projectId, isOwner, open, onOpenChange }: ShareDia
   const [inviteError, setInviteError] = useState<string | null>(null)
   const [removingEmail, setRemovingEmail] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   const fetchData = useCallback(async () => {
     setLoading(true)
+    setLoadError(null)
     try {
       const res = await fetch(`/api/projects/${projectId}/collaborators`)
       if (res.ok) {
         const data: CollaboratorsResponse = await res.json()
         setOwner(data.owner)
         setCollaborators(data.collaborators)
+      } else {
+        setLoadError('Failed to load collaborators')
       }
+    } catch {
+      setLoadError('Failed to load collaborators')
     } finally {
       setLoading(false)
     }
   }, [projectId])
 
   useEffect(() => {
-    if (open) fetchData()
+    if (open) void fetchData()
   }, [open, fetchData])
 
   async function handleInvite(e: React.SyntheticEvent<HTMLFormElement>) {
@@ -118,12 +124,19 @@ export function ShareDialog({ projectId, isOwner, open, onOpenChange }: ShareDia
   async function handleRemove(email: string) {
     setRemovingEmail(email)
     try {
-      await fetch(`/api/projects/${projectId}/collaborators`, {
+      const res = await fetch(`/api/projects/${projectId}/collaborators`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       })
-      await fetchData()
+      if (res.ok) {
+        await fetchData()
+      } else {
+        const data: { error?: string } = await res.json().catch(() => ({}))
+        setInviteError(data.error ?? 'Failed to remove collaborator')
+      }
+    } catch {
+      setInviteError('Failed to remove collaborator')
     } finally {
       setRemovingEmail(null)
     }
@@ -136,7 +149,7 @@ export function ShareDialog({ projectId, isOwner, open, onOpenChange }: ShareDia
     setTimeout(() => setCopied(false), 2000)
   }
 
-  const totalCount = 1 + collaborators.length
+  const totalCount = (owner ? 1 : 0) + collaborators.length
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -190,6 +203,7 @@ export function ShareDialog({ projectId, isOwner, open, onOpenChange }: ShareDia
                 <Mail className="h-3.5 w-3.5 text-copy-faint shrink-0" />
                 <input
                   type="email"
+                  aria-label="Invite collaborator by email"
                   placeholder="teammate@company.com"
                   value={inviteEmail}
                   onChange={(e) => {
@@ -218,7 +232,7 @@ export function ShareDialog({ projectId, isOwner, open, onOpenChange }: ShareDia
           {/* People with access — flat rows like sidebar project rows */}
           <div className="flex items-center justify-between px-2 py-1">
             <p className="text-xs text-copy-muted">People with access</p>
-            {!loading && (
+            {!loading && !loadError && (
               <span className="text-xs text-copy-muted">{totalCount} total</span>
             )}
           </div>
@@ -227,6 +241,8 @@ export function ShareDialog({ projectId, isOwner, open, onOpenChange }: ShareDia
             <div className="flex items-center justify-center py-6">
               <Loader2 className="h-4 w-4 animate-spin text-copy-muted" />
             </div>
+          ) : loadError ? (
+            <p className="text-xs text-state-error px-2 py-3 text-center">{loadError}</p>
           ) : (
             <ul className="flex flex-col gap-0.5">
               {owner && (

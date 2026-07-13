@@ -15,7 +15,7 @@ export default async function EditorLayout({ children }: { children: React.React
   ])
 
   return (
-    <EditorShell initialOwnedProjects={ownedProjects} sharedProjects={sharedProjects}>
+    <EditorShell initialOwnedProjects={ownedProjects} initialSharedProjects={sharedProjects}>
       {children}
     </EditorShell>
   )

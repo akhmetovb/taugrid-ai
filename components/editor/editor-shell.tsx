@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { ProjectSidebar } from "./project-sidebar"
 import { CreateProjectDialog } from "./create-project-dialog"
 import { RenameProjectDialog } from "./rename-project-dialog"
@@ -12,17 +12,17 @@ import type { SidebarProject } from "@/lib/project-data"
 
 interface EditorShellProps {
   initialOwnedProjects: SidebarProject[]
-  sharedProjects: SidebarProject[]
+  initialSharedProjects: SidebarProject[]
   children: React.ReactNode
 }
 
-const SHARED_REFRESH_INTERVAL_MS = 60_000
+const POLL_INTERVAL_MS = 60_000
 
-export function EditorShell({ initialOwnedProjects, sharedProjects, children }: EditorShellProps) {
+export function EditorShell({ initialOwnedProjects, initialSharedProjects, children }: EditorShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [ownedProjects, setOwnedProjects] = useState<SidebarProject[]>(initialOwnedProjects)
+  const [sharedProjects] = useState<SidebarProject[]>(initialSharedProjects)
 
-  const router = useRouter()
   const pathname = usePathname()
   const segments = pathname.split("/")
   const activeRoomId = segments.length >= 3 && segments[2] ? segments[2] : undefined
@@ -34,16 +34,52 @@ export function EditorShell({ initialOwnedProjects, sharedProjects, children }: 
   }, [])
 
   useEffect(() => {
-    function onVisibilityChange() {
-      if (document.visibilityState === "visible") router.refresh()
+    let intervalId: ReturnType<typeof setInterval> | undefined
+
+    async function refreshOwned() {
+      if (document.hidden) return
+      try {
+        const res = await fetch('/api/projects/sidebar')
+        if (!res.ok) return
+        const data = await res.json() as { owned: SidebarProject[] }
+        setOwnedProjects(data.owned)
+      } catch {
+        // network error — skip this tick
+      }
     }
+
+    function startInterval() {
+      intervalId = setInterval(refreshOwned, POLL_INTERVAL_MS)
+    }
+
+    function stopInterval() {
+      if (intervalId !== undefined) {
+        clearInterval(intervalId)
+        intervalId = undefined
+      }
+    }
+
+    function onVisibilityChange() {
+      if (document.visibilityState === "visible") {
+        refreshOwned()
+        startInterval()
+      } else {
+        stopInterval()
+      }
+    }
+
     document.addEventListener("visibilitychange", onVisibilityChange)
-    const interval = setInterval(() => router.refresh(), SHARED_REFRESH_INTERVAL_MS)
+
+    // Jitter the first interval start to avoid synchronized thundering-herd refreshes
+    const jitter = Math.random() * POLL_INTERVAL_MS
+    const jitterId = setTimeout(startInterval, jitter)
+
     return () => {
       document.removeEventListener("visibilitychange", onVisibilityChange)
-      clearInterval(interval)
+      clearTimeout(jitterId)
+      stopInterval()
     }
-  }, [router])
+  }, [])
 
   const {
     dialogState,

@@ -18,33 +18,41 @@ export interface CollaboratorsResponse {
 
 async function enrichEmails(emails: string[]): Promise<CollaboratorEntry[]> {
   if (emails.length === 0) return []
-  const client = await clerkClient()
-  const { data: users } = await client.users.getUserList({ emailAddress: emails, limit: 100 })
+  try {
+    const client = await clerkClient()
+    const { data: users } = await client.users.getUserList({ emailAddress: emails, limit: 100 })
 
-  const byEmail = new Map(
-    users.flatMap((u) =>
-      u.emailAddresses.map((ea) => [
-        ea.emailAddress,
-        {
-          displayName: [u.firstName, u.lastName].filter(Boolean).join(' ') || null,
-          imageUrl: u.imageUrl ?? null,
-        },
-      ])
+    const byEmail = new Map(
+      users.flatMap((u) =>
+        u.emailAddresses.map((ea) => [
+          ea.emailAddress,
+          {
+            displayName: [u.firstName, u.lastName].filter(Boolean).join(' ') || null,
+            imageUrl: u.imageUrl ?? null,
+          },
+        ])
+      )
     )
-  )
 
-  return emails.map((email) => {
-    const userData = byEmail.get(email)
-    return { email, displayName: userData?.displayName ?? null, imageUrl: userData?.imageUrl ?? null }
-  })
+    return emails.map((email) => {
+      const userData = byEmail.get(email)
+      return { email, displayName: userData?.displayName ?? null, imageUrl: userData?.imageUrl ?? null }
+    })
+  } catch {
+    return emails.map((email) => ({ email, displayName: null, imageUrl: null }))
+  }
 }
 
 async function enrichUserId(userId: string): Promise<CollaboratorEntry> {
-  const client = await clerkClient()
-  const user = await client.users.getUser(userId)
-  const email = user.emailAddresses[0]?.emailAddress ?? ''
-  const displayName = [user.firstName, user.lastName].filter(Boolean).join(' ') || null
-  return { email, displayName, imageUrl: user.imageUrl ?? null }
+  try {
+    const client = await clerkClient()
+    const user = await client.users.getUser(userId)
+    const email = user.primaryEmailAddress?.emailAddress ?? ''
+    const displayName = [user.firstName, user.lastName].filter(Boolean).join(' ') || null
+    return { email, displayName, imageUrl: user.imageUrl ?? null }
+  } catch {
+    return { email: '', displayName: null, imageUrl: null }
+  }
 }
 
 export async function GET(_request: NextRequest, { params }: RouteParams) {
@@ -65,7 +73,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
   if (!isOwner) {
     const user = await currentUser()
-    const myEmail = user?.emailAddresses[0]?.emailAddress ?? ''
+    const myEmail = user?.primaryEmailAddress?.emailAddress ?? ''
     const isCollaborator = project.collaborators.some((c: { email: string }) => c.email === myEmail)
     if (!isCollaborator) return Response.json({ error: 'Forbidden' }, { status: 403 })
   }
