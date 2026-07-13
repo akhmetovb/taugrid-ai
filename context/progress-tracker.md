@@ -8,7 +8,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Goal
 
-- Feature 07: Wire editor home — complete
+- Feature 09: Share dialog — complete
 
 ## Completed
 
@@ -19,6 +19,8 @@ Update this file whenever the current phase, active feature, or implementation s
 - Feature 05: Prisma — `prisma/models/project.prisma` defines `ProjectStatus` enum, `Project` model (ownerId, name, description, status, canvasJsonPath, timestamps, indexes on ownerId and createdAt), and `ProjectCollaborator` model (projectId, email, createdAt, cascade delete, unique on project/email, indexes on email and projectId/createdAt). `lib/prisma.ts` exports a cached singleton that branches on DATABASE_URL: `prisma+postgres://` uses Accelerate via `@prisma/extension-accelerate`, otherwise uses `@prisma/adapter-pg` directly. Migration `20260712093238_init` applied and client generated to `app/generated/prisma`.
 - Feature 06: Project API routes — `app/api/projects/route.ts` (GET lists owner's projects ordered by createdAt desc; POST creates with defaulted name "Untitled Project"), `app/api/projects/[projectId]/route.ts` (PATCH renames, DELETE deletes). Auth via Clerk `auth()`: 401 for unauthenticated, 403 for non-owner mutations. `npm run build` passes.
 - Feature 07: Wire editor home — `lib/project-data.ts` exports `SidebarProject` interface and `getOwnedProjects`/`getSharedProjects` helpers (Prisma, server-only). `hooks/use-project-actions.ts` manages dialog state and real mutations: create calls `POST /api/projects` with a slugified name + 5-char random suffix as the room ID, then navigates to `/editor/[roomId]`; rename calls `PATCH` and refreshes; delete calls `DELETE`, redirects to `/editor` if deleting the active workspace, otherwise refreshes. `app/editor/page.tsx` converted to async Server Component — fetches owned and shared projects via Clerk `auth()` + `currentUser()` and passes them to `EditorHomeClient`. `app/editor/editor-home-client.tsx` is the extracted `"use client"` shell with sidebar, dialogs, and sidebar-open state. `components/editor/project-sidebar.tsx` updated to accept separate `ownedProjects`/`sharedProjects` arrays of `SidebarProject`. `components/editor/create-project-dialog.tsx` updated: `slug` prop renamed to `roomId`, label changed to "Room ID:". `POST /api/projects` updated to accept an optional `id` field (validated against `^[a-z0-9-]+$`) so the project ID and Liveblocks room ID stay aligned. `npm run build` passes.
+- Feature 08: Editor workspace shell — `lib/project-access.ts` exports `getCurrentIdentity` (Clerk `auth()` + `currentUser()` → `{ userId, email }`) and `getProjectIfAccessible` (single Prisma query, checks owner or collaborator, returns `{ id, name, isOwner }` or null). `components/editor/access-denied.tsx` is a centered layout with lock icon, short message, and a `Link` styled via `buttonVariants({ variant: 'outline' })` back to `/editor`. `app/editor/[roomId]/page.tsx` is a server component: unauthenticated → redirect to `/sign-in`; no project access or non-existent project → `<AccessDenied />`; otherwise renders `WorkspaceClient`. `app/editor/[roomId]/workspace-client.tsx` is the `"use client"` shell: manages `sidebarOpen` and `aiSidebarOpen` state; `EditorNavbar` shows project name, Share placeholder, and Sparkles AI-sidebar toggle; `ProjectSidebar` receives `activeRoomId` to highlight the current room; canvas area is a dark placeholder with centered message; right AI sidebar is a slide-in placeholder. `components/editor/editor-navbar.tsx` updated with optional `projectName`, `isAISidebarOpen`, `onToggleAISidebar` props — workspace actions (Share + Sparkles toggle) render only when `projectName` is present. `components/editor/project-sidebar.tsx` updated with optional `activeRoomId` prop and `Link`-based navigation on project items. `npm run build` passes.
+- Feature 09: Share dialog — `app/api/projects/[projectId]/collaborators/route.ts` handles GET (list, auth-gated: owner or collaborator), POST (invite by email, owner only, upsert), DELETE (remove by email, owner only). Clerk Backend API (`clerkClient().users.getUserList`) enriches collaborator emails with display name and avatar; falls back to email-only if not found. `components/editor/share-dialog.tsx` is a `"use client"` dialog: owners see invite form + remove buttons + copy-link; collaborators see read-only list. `components/ui/avatar.tsx` added via shadcn CLI. `lib/project-access.ts` updated to include `isOwner` in `AccessibleProject`. `components/editor/editor-navbar.tsx` updated with `onShareClick` prop. `app/editor/[roomId]/workspace-client.tsx` updated with `isOwner` prop, share dialog state, and `<ShareDialog>`. `app/editor/[roomId]/page.tsx` passes `isOwner` to `WorkspaceClient`. `npm run build` passes.
 
 ## In Progress
 
@@ -26,7 +28,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Next Up
 
-- Feature 08: (to be defined in next feature spec)
+- Feature 10: (to be defined in next feature spec)
 
 ## Open Questions
 

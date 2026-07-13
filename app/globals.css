@@ -2,6 +2,10 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* Tie dark: to a .dark ancestor class so it never fires based on OS preference.
+   This app is dark-only — all tokens are baked into :root. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme inline {
     /* shadcn component tokens */
     --font-heading: var(--font-geist-sans);

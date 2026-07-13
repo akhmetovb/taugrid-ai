@@ -27,9 +27,12 @@ function generateSuffix(): string {
 
 interface UseProjectActionsOptions {
   activeProjectId?: string
+  onProjectCreated?: (project: SidebarProject) => void
+  onProjectDeleted?: (projectId: string) => void
+  onProjectRenamed?: (projectId: string, newName: string) => void
 }
 
-export function useProjectActions({ activeProjectId }: UseProjectActionsOptions = {}) {
+export function useProjectActions({ activeProjectId, onProjectCreated, onProjectDeleted, onProjectRenamed }: UseProjectActionsOptions = {}) {
   const router = useRouter()
   const [dialogState, setDialogState] = useState<DialogState>({ type: null, project: null })
   const [formName, setFormName] = useState("")
@@ -69,6 +72,8 @@ export function useProjectActions({ activeProjectId }: UseProjectActionsOptions 
         body: JSON.stringify({ id: roomId, name }),
       })
       if (res.ok) {
+        closeDialog()
+        onProjectCreated?.({ id: roomId, name })
         router.push(`/editor/${roomId}`)
       }
     })
@@ -86,7 +91,7 @@ export function useProjectActions({ activeProjectId }: UseProjectActionsOptions 
       })
       if (res.ok) {
         closeDialog()
-        router.refresh()
+        onProjectRenamed?.(projectId, name)
       }
     })
   }
@@ -100,10 +105,9 @@ export function useProjectActions({ activeProjectId }: UseProjectActionsOptions 
       })
       if (res.ok) {
         closeDialog()
+        onProjectDeleted?.(projectId)
         if (projectId === activeProjectId) {
           router.push("/editor")
-        } else {
-          router.refresh()
         }
       }
     })
