@@ -1,10 +1,11 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { Bot, Compass, Sparkles } from 'lucide-react'
+import { Bot, Sparkles } from 'lucide-react'
 import { EditorNavbar } from '@/components/editor/editor-navbar'
 import { useSidebar } from '@/components/editor/sidebar-context'
 import { ShareDialog } from '@/components/editor/share-dialog'
+import { CanvasWrapper } from '@/components/editor/canvas-wrapper'
 
 interface WorkspaceClientProps {
   roomId: string
@@ -79,21 +80,8 @@ export function WorkspaceClient({ roomId, projectName, isOwner }: WorkspaceClien
         </div>
       )}
 
-      <main className="pt-12 h-full bg-base flex flex-col items-center justify-center gap-5 px-8">
-        <div className="h-16 w-16 rounded-full bg-surface border border-surface-border flex items-center justify-center">
-          <Compass className="h-7 w-7 text-brand" />
-        </div>
-        <p className="text-[11px] tracking-[0.2em] uppercase text-copy-faint select-none">
-          Workspace Shell
-        </p>
-        <h2 className="text-2xl font-semibold text-copy-primary text-center max-w-md leading-snug">
-          Canvas and collaboration tooling land here next.
-        </h2>
-        <p className="text-copy-muted text-sm text-center max-w-md leading-relaxed">
-          This room is ready for the shared architecture canvas, durable AI
-          workflows, and real-time presence. For now, the shell is wired with
-          project context and navigation only.
-        </p>
+      <main className="fixed inset-0 top-12 overflow-hidden">
+        <CanvasWrapper roomId={roomId} />
       </main>
     </>
   )
