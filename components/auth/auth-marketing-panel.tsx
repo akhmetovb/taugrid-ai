@@ -14,7 +14,7 @@ export default function AuthMarketingPanel() {
 
       <div className="flex-1 flex flex-col justify-center">
         <h1 className="text-2xl font-semibold text-copy-primary leading-snug mb-4">
-          AI-Native Digital Twin Platform for Smart Energy Grids.
+          GenAI Platform for Smart Energy Grids.
         </h1>
         <p className="text-copy-muted text-sm leading-relaxed mb-10">
           Describe your energy system in plain English. TauGrid AI transforms

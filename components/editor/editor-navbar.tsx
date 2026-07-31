@@ -1,8 +1,9 @@
 "use client"
 
-import { PanelLeftClose, PanelLeftOpen, Share2, Sparkles } from "lucide-react"
+import { PanelLeftClose, PanelLeftOpen, Share2, Sparkles, LayoutDashboard, Box } from "lucide-react"
 import { UserButton } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 
 interface EditorNavbarProps {
   isSidebarOpen: boolean
@@ -11,6 +12,8 @@ interface EditorNavbarProps {
   isAISidebarOpen?: boolean
   onToggleAISidebar?: () => void
   onShareClick?: () => void
+  activeView?: 'canvas' | '3d'
+  onViewChange?: (view: 'canvas' | '3d') => void
 }
 
 export function EditorNavbar({
@@ -20,10 +23,12 @@ export function EditorNavbar({
   isAISidebarOpen,
   onToggleAISidebar,
   onShareClick,
+  activeView = 'canvas',
+  onViewChange,
 }: EditorNavbarProps) {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 h-12 flex items-center px-3 bg-surface border-b border-surface-border">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 shrink-0">
         <Button
           variant="ghost"
           size="icon"
@@ -44,8 +49,39 @@ export function EditorNavbar({
           </div>
         )}
       </div>
-      <div className="flex-1" />
-      <div className="flex items-center gap-2">
+
+      <div className="flex-1 flex justify-center">
+        {projectName && (
+          <div className="inline-flex items-center gap-0.5 rounded-md bg-base border border-surface-border p-0.5">
+            <button
+              onClick={() => onViewChange?.('canvas')}
+              className={cn(
+                "flex items-center gap-1 rounded px-2 py-0.5 text-xs transition-colors",
+                activeView === 'canvas'
+                  ? "bg-surface text-copy-primary"
+                  : "text-copy-muted hover:text-copy-primary"
+              )}
+            >
+              <LayoutDashboard className="h-3.5 w-3.5" />
+              Canvas
+            </button>
+            <button
+              onClick={() => onViewChange?.('3d')}
+              className={cn(
+                "flex items-center gap-1 rounded px-2 py-0.5 text-xs transition-colors",
+                activeView === '3d'
+                  ? "bg-surface text-copy-primary"
+                  : "text-copy-muted hover:text-copy-primary"
+              )}
+            >
+              <Box className="h-3.5 w-3.5" />
+              3D View
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="flex items-center gap-2 shrink-0">
         {projectName && (
           <>
             <Button
