@@ -46,6 +46,9 @@ export function CreateProjectDialog({
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               onFormNameChange(e.target.value)
             }
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+              if (e.key === "Enter" && formName.trim() && roomId && !isLoading) onCreate()
+            }}
             className="text-copy-primary"
             autoFocus
           />

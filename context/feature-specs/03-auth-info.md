@@ -6,7 +6,7 @@ Information on the left side of the Auth page needs to be improved.
 
 ## Header
 
-- Title: "AI-Native Digital Twin Platform for Smart Energy Grids."
+- Title: "GenAI Platform for Smart Energy Grids."
 - Description: Describe your energy system in plain English. TauGrid AI transforms it into a shared visual model, enabling your team to collaborate, refine the design, and instantly generate a living digital twin.
 
 ### Bullet Points

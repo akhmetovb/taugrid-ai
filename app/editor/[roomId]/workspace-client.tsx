@@ -6,6 +6,7 @@ import { EditorNavbar } from '@/components/editor/editor-navbar'
 import { useSidebar } from '@/components/editor/sidebar-context'
 import { ShareDialog } from '@/components/editor/share-dialog'
 import { CanvasWrapper } from '@/components/editor/canvas-wrapper'
+import { cn } from '@/lib/utils'
 
 interface WorkspaceClientProps {
   roomId: string
@@ -16,6 +17,7 @@ interface WorkspaceClientProps {
 export function WorkspaceClient({ roomId, projectName, isOwner }: WorkspaceClientProps) {
   const [aiSidebarOpen, setAiSidebarOpen] = useState(false)
   const [shareDialogOpen, setShareDialogOpen] = useState(false)
+  const [activeView, setActiveView] = useState<'canvas' | '3d'>('canvas')
   const { sidebarOpen, toggleSidebar } = useSidebar()
 
   useEffect(() => {
@@ -33,6 +35,8 @@ export function WorkspaceClient({ roomId, projectName, isOwner }: WorkspaceClien
         isAISidebarOpen={aiSidebarOpen}
         onToggleAISidebar={() => setAiSidebarOpen((v) => !v)}
         onShareClick={() => setShareDialogOpen(true)}
+        activeView={activeView}
+        onViewChange={setActiveView}
       />
       <ShareDialog
         projectId={roomId}
@@ -80,9 +84,15 @@ export function WorkspaceClient({ roomId, projectName, isOwner }: WorkspaceClien
         </div>
       )}
 
-      <main className="fixed inset-0 top-12 overflow-hidden">
-        <CanvasWrapper roomId={roomId} />
+      <main className={cn("fixed inset-0 top-12 overflow-hidden", activeView !== 'canvas' && 'hidden')}>
+        <CanvasWrapper roomId={roomId} activeView={activeView} />
       </main>
+
+      {activeView === '3d' && (
+        <main className="fixed inset-0 top-12 overflow-hidden flex items-center justify-center bg-[#0a0a0a]">
+          <p className="text-sm text-copy-muted">Twin View coming soon</p>
+        </main>
+      )}
     </>
   )
 }
