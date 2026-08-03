@@ -15,6 +15,10 @@ interface GroupDef {
   icon: string
 }
 
+interface FloatingPanelProps {
+  onInsert?: (component: EnergyComponentDef) => void
+}
+
 const GROUPS: GroupDef[] = [
   { group: 'generation', label: 'Generation', icon: 'tabler:bolt'             },
   { group: 'storage',    label: 'Storage',    icon: 'tabler:battery-charging' },
@@ -23,29 +27,12 @@ const GROUPS: GroupDef[] = [
   { group: 'control',    label: 'Control',    icon: 'tabler:cpu'              },
 ]
 
-export interface PanelDragPayload {
-  componentType: string
-  group: ComponentGroup
-  label: string
-  defaultWidth: number
-  defaultHeight: number
-  color: string
-}
-
 function startDrag(e: React.DragEvent, component: EnergyComponentDef) {
-  const payload: PanelDragPayload = {
-    componentType: component.type,
-    group:         component.group,
-    label:         component.label,
-    defaultWidth:  component.defaultWidth,
-    defaultHeight: component.defaultHeight,
-    color:         GROUP_COLORS[component.group].fill,
-  }
-  e.dataTransfer.setData('application/json', JSON.stringify(payload))
+  e.dataTransfer.setData('application/json', JSON.stringify({ componentType: component.type }))
   e.dataTransfer.effectAllowed = 'copy'
 }
 
-export function FloatingPanel() {
+export function FloatingPanel({ onInsert }: FloatingPanelProps) {
   const [activeGroup, setActiveGroup] = useState<ComponentGroup | null>(null)
 
   const expanded       = activeGroup !== null
@@ -92,12 +79,19 @@ export function FloatingPanel() {
           {groupComponents.map((component) => {
             const colors = GROUP_COLORS[component.group]
             return (
-              <div
+              <button
                 key={component.type}
+                type="button"
                 draggable
                 onDragStart={(e) => startDrag(e, component)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    onInsert?.(component)
+                  }
+                }}
                 title={component.label}
-                className="flex items-center justify-center rounded-xl p-1.5 cursor-grab transition-colors hover:bg-subtle active:cursor-grabbing"
+                className="flex items-center justify-center rounded-xl p-1.5 cursor-grab transition-colors hover:bg-subtle active:cursor-grabbing focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <Icon
                   icon={component.icon}
@@ -105,7 +99,7 @@ export function FloatingPanel() {
                   height={18}
                   style={{ color: colors.text }}
                 />
-              </div>
+              </button>
             )
           })}
         </>

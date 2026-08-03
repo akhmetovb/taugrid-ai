@@ -87,7 +87,6 @@ export interface CanvasNodeData extends Record<string, unknown> {
 
 export interface CanvasEdgeData extends Record<string, unknown> {
   label?: string
-  bendPoints?: { x: number; y: number }[]
 }
 
 export type CanvasNode = Node<CanvasNodeData, 'canvasNode'>

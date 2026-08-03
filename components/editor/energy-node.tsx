@@ -125,6 +125,9 @@ export function EnergyNode({ id, data, selected }: NodeProps<CanvasNode>) {
             return (
               <button
                 key={i}
+                type="button"
+                aria-label={`Select color ${pair.fill}`}
+                aria-pressed={isActive}
                 onMouseDown={(e) => { e.stopPropagation(); e.preventDefault() }}
                 onClick={(e) => {
                   e.stopPropagation()

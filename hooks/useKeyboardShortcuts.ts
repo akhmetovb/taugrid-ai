@@ -9,10 +9,13 @@ interface Options {
   flowInstance: FlowZoom | null
   onUndo: () => void
   onRedo: () => void
+  activeView: 'canvas' | '3d'
 }
 
-export function useKeyboardShortcuts({ flowInstance, onUndo, onRedo }: Options) {
+export function useKeyboardShortcuts({ flowInstance, onUndo, onRedo, activeView }: Options) {
   useEffect(() => {
+    if (activeView !== 'canvas') return
+
     function onKeyDown(e: KeyboardEvent) {
       const target = e.target as HTMLElement
       if (
@@ -43,5 +46,5 @@ export function useKeyboardShortcuts({ flowInstance, onUndo, onRedo }: Options) 
 
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [flowInstance, onUndo, onRedo])
+  }, [flowInstance, onUndo, onRedo, activeView])
 }

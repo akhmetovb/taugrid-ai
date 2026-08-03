@@ -85,7 +85,7 @@ export function WorkspaceClient({ roomId, projectName, isOwner }: WorkspaceClien
       )}
 
       <main className={cn("fixed inset-0 top-12 overflow-hidden", activeView !== 'canvas' && 'hidden')}>
-        <CanvasWrapper roomId={roomId} />
+        <CanvasWrapper roomId={roomId} activeView={activeView} />
       </main>
 
       {activeView === '3d' && (

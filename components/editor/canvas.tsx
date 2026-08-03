@@ -108,9 +108,10 @@ const defaultEdgeOptions = {
 
 interface CanvasFlowProps {
   canvasRef: MutableRefObject<CanvasPort | null>
+  activeView: 'canvas' | '3d'
 }
 
-function CanvasFlow({ canvasRef }: CanvasFlowProps) {
+function CanvasFlow({ canvasRef, activeView }: CanvasFlowProps) {
   const { nodes, edges, onNodesChange, onEdgesChange, onDelete } =
     useLiveblocksFlow<CanvasNode, CanvasEdge>({
       suspense: true,
@@ -125,7 +126,7 @@ function CanvasFlow({ canvasRef }: CanvasFlowProps) {
   const canUndo = useCanUndo()
   const canRedo = useCanRedo()
 
-  useKeyboardShortcuts({ flowInstance, onUndo: undo, onRedo: redo })
+  useKeyboardShortcuts({ flowInstance, onUndo: undo, onRedo: redo, activeView })
 
   // Register this canvas's API with the drop zone in canvas-wrapper
   useEffect(() => {
@@ -182,12 +183,13 @@ function CanvasFlow({ canvasRef }: CanvasFlowProps) {
 
 interface CanvasProps {
   canvasRef: MutableRefObject<CanvasPort | null>
+  activeView: 'canvas' | '3d'
 }
 
-export function Canvas({ canvasRef }: CanvasProps) {
+export function Canvas({ canvasRef, activeView }: CanvasProps) {
   return (
     <ReactFlowProvider>
-      <CanvasFlow canvasRef={canvasRef} />
+      <CanvasFlow canvasRef={canvasRef} activeView={activeView} />
     </ReactFlowProvider>
   )
 }

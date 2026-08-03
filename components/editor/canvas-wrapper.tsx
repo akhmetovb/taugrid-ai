@@ -16,9 +16,9 @@ import {
 } from '@liveblocks/react'
 import { ClientSideSuspense } from '@liveblocks/react/suspense'
 import { Canvas, type CanvasPort } from './canvas'
-import { FloatingPanel, type PanelDragPayload } from './floating-panel'
-import { GROUP_COLORS } from '@/types/canvas'
-import type { CanvasNode } from '@/types/canvas'
+import { FloatingPanel } from './floating-panel'
+import { COMPONENT_MAP, GROUP_COLORS } from '@/types/canvas'
+import type { CanvasNode, EnergyComponentDef } from '@/types/canvas'
 
 // ─── error boundary ────────────────────────────────────────────────────────────
 
@@ -68,6 +68,27 @@ function RoomConnectionGuard({ children }: { children: ReactNode }) {
 
 let nodeIdCounter = 0
 
+function buildCanvasNode(component: EnergyComponentDef, flowX: number, flowY: number): CanvasNode {
+  nodeIdCounter++
+  return {
+    id: `${component.type}-${Date.now()}-${nodeIdCounter}`,
+    type: 'canvasNode',
+    position: {
+      x: flowX - component.defaultWidth / 2,
+      y: flowY - component.defaultHeight / 2,
+    },
+    width:  component.defaultWidth,
+    height: component.defaultHeight,
+    data: {
+      label:         component.label,
+      color:         GROUP_COLORS[component.group].fill,
+      componentType: component.type,
+      group:         component.group,
+      coordinates:   null,
+    },
+  }
+}
+
 interface DropZoneProps {
   canvasRef: MutableRefObject<CanvasPort | null>
   children: ReactNode
@@ -86,40 +107,37 @@ function DropZone({ canvasRef, children }: DropZoneProps) {
       const raw = e.dataTransfer.getData('application/json')
       if (!raw || !canvasRef.current) return
 
-      let payload: PanelDragPayload
+      let parsed: unknown
       try {
-        payload = JSON.parse(raw) as PanelDragPayload
+        parsed = JSON.parse(raw)
       } catch {
         return
       }
 
+      if (
+        !parsed ||
+        typeof parsed !== 'object' ||
+        !('componentType' in parsed) ||
+        typeof (parsed as Record<string, unknown>).componentType !== 'string'
+      ) return
+
+      const component = COMPONENT_MAP[(parsed as Record<string, unknown>).componentType as string]
+      if (!component) return
+
+      const position = canvasRef.current.screenToFlowPosition({ x: e.clientX, y: e.clientY })
+      canvasRef.current.addNode(buildCanvasNode(component, position.x, position.y))
+    },
+    [canvasRef]
+  )
+
+  const addNodeAtCenter = useCallback(
+    (component: EnergyComponentDef) => {
+      if (!canvasRef.current) return
       const position = canvasRef.current.screenToFlowPosition({
-        x: e.clientX,
-        y: e.clientY,
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2,
       })
-
-      nodeIdCounter++
-      const id = `${payload.componentType}-${Date.now()}-${nodeIdCounter}`
-
-      const newNode: CanvasNode = {
-        id,
-        type: 'canvasNode',
-        position: {
-          x: position.x - payload.defaultWidth / 2,
-          y: position.y - payload.defaultHeight / 2,
-        },
-        width:  payload.defaultWidth,
-        height: payload.defaultHeight,
-        data: {
-          label:         payload.label,
-          color:         GROUP_COLORS[payload.group].fill,
-          componentType: payload.componentType,
-          group:         payload.group,
-          coordinates:   null,
-        },
-      }
-
-      canvasRef.current.addNode(newNode)
+      canvasRef.current.addNode(buildCanvasNode(component, position.x, position.y))
     },
     [canvasRef]
   )
@@ -130,7 +148,7 @@ function DropZone({ canvasRef, children }: DropZoneProps) {
       {/* Floating panel: pointer-events-none on the positioner, auto on the pill */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
         <div className="pointer-events-auto">
-          <FloatingPanel />
+          <FloatingPanel onInsert={addNodeAtCenter} />
         </div>
       </div>
     </div>
@@ -141,9 +159,10 @@ function DropZone({ canvasRef, children }: DropZoneProps) {
 
 interface CanvasWrapperProps {
   roomId: string
+  activeView: 'canvas' | '3d'
 }
 
-export function CanvasWrapper({ roomId }: CanvasWrapperProps) {
+export function CanvasWrapper({ roomId, activeView }: CanvasWrapperProps) {
   const canvasRef = useRef<CanvasPort | null>(null)
 
   return (
@@ -162,7 +181,7 @@ export function CanvasWrapper({ roomId }: CanvasWrapperProps) {
               }
             >
               <DropZone canvasRef={canvasRef}>
-                <Canvas canvasRef={canvasRef} />
+                <Canvas canvasRef={canvasRef} activeView={activeView} />
               </DropZone>
             </ClientSideSuspense>
           </CanvasErrorBoundary>

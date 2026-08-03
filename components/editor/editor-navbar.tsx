@@ -54,6 +54,8 @@ export function EditorNavbar({
         {projectName && (
           <div className="inline-flex items-center gap-0.5 rounded-md bg-base border border-surface-border p-0.5">
             <button
+              type="button"
+              aria-pressed={activeView === 'canvas'}
               onClick={() => onViewChange?.('canvas')}
               className={cn(
                 "flex items-center gap-1 rounded px-2 py-0.5 text-xs transition-colors",
@@ -66,6 +68,8 @@ export function EditorNavbar({
               Canvas
             </button>
             <button
+              type="button"
+              aria-pressed={activeView === '3d'}
               onClick={() => onViewChange?.('3d')}
               className={cn(
                 "flex items-center gap-1 rounded px-2 py-0.5 text-xs transition-colors",
