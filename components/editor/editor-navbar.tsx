@@ -1,6 +1,7 @@
 "use client"
 
-import { PanelLeftClose, PanelLeftOpen, Share2, Sparkles, LayoutDashboard, Box } from "lucide-react"
+import { type ReactNode } from "react"
+import { PanelLeftClose, PanelLeftOpen, Share2, LayoutDashboard, Box } from "lucide-react"
 import { UserButton } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -9,22 +10,22 @@ interface EditorNavbarProps {
   isSidebarOpen: boolean
   onToggleSidebar: () => void
   projectName?: string
-  isAISidebarOpen?: boolean
-  onToggleAISidebar?: () => void
   onShareClick?: () => void
   activeView?: 'canvas' | '3d'
   onViewChange?: (view: 'canvas' | '3d') => void
+  collaboratorAvatars?: ReactNode
+  saveIndicator?: ReactNode
 }
 
 export function EditorNavbar({
   isSidebarOpen,
   onToggleSidebar,
   projectName,
-  isAISidebarOpen,
-  onToggleAISidebar,
   onShareClick,
   activeView = 'canvas',
   onViewChange,
+  collaboratorAvatars,
+  saveIndicator,
 }: EditorNavbarProps) {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 h-12 flex items-center px-3 bg-surface border-b border-surface-border">
@@ -86,9 +87,9 @@ export function EditorNavbar({
       </div>
 
       <div className="flex items-center gap-2 shrink-0">
+        {projectName && saveIndicator}
         {projectName && (
-          <>
-            <Button
+          <Button
               variant="ghost"
               size="sm"
               className="h-8 gap-1.5 text-copy-muted hover:text-copy-primary"
@@ -97,18 +98,8 @@ export function EditorNavbar({
               <Share2 className="h-4 w-4" />
               Share
             </Button>
-            <Button
-              variant="default"
-              size="sm"
-              onClick={onToggleAISidebar}
-              aria-label={isAISidebarOpen ? "Close AI sidebar" : "Open AI sidebar"}
-              className="h-8 gap-1.5"
-            >
-              <Sparkles className="h-4 w-4" />
-              AI
-            </Button>
-          </>
         )}
+        {projectName && collaboratorAvatars}
         <UserButton />
       </div>
     </header>
