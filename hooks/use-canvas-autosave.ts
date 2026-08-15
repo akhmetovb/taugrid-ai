@@ -34,19 +34,30 @@ export function useCanvasAutosave({
   // Keep the latest graph in a ref so a manual save always sends current state.
   const latest = useRef({ nodes, edges })
   latest.current = { nodes, edges }
+  // Monotonic request id so a stale response can't overwrite a newer save's status.
+  const seq = useRef(0)
+  // Abort the previous in-flight request when a newer save supersedes it.
+  const inFlight = useRef<AbortController | null>(null)
 
   const saveNow = useCallback(async () => {
     if (timer.current) clearTimeout(timer.current)
+    inFlight.current?.abort()
+    const controller = new AbortController()
+    inFlight.current = controller
+    const id = ++seq.current
     setStatus('saving')
     try {
       const res = await fetch(`/api/projects/${projectId}/canvas`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(latest.current),
+        signal: controller.signal,
       })
+      if (id !== seq.current) return
       if (!res.ok) throw new Error(`Save failed: ${res.status}`)
       setStatus('saved')
-    } catch {
+    } catch (err) {
+      if (id !== seq.current || (err as Error)?.name === 'AbortError') return
       setStatus('error')
     }
   }, [projectId, setStatus])

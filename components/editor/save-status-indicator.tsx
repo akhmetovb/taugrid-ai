@@ -27,7 +27,7 @@ export function SaveStatusIndicator() {
       aria-live="polite"
       className={cn("h-8 gap-1.5 disabled:opacity-100", className)}
     >
-      <Icon className={cn("h-4 w-4", status === "saving" && "animate-spin")} />
+      <Icon className={cn("h-4 w-4 shrink-0", status === "saving" && "animate-spin")} />
       {label}
     </Button>
   )

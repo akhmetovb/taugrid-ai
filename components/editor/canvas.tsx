@@ -147,30 +147,36 @@ function CanvasFlow({ canvasRef, activeView, projectId }: CanvasFlowProps) {
     ;(async () => {
       try {
         const res = await fetch(`/api/projects/${projectId}/canvas`)
-        if (res.ok) {
-          const data = await res.json()
-          const canvas = data?.canvas as
-            | { nodes?: CanvasNode[]; edges?: CanvasEdge[] }
-            | null
-            | undefined
-          const loadedNodes = canvas?.nodes ?? []
-          const loadedEdges = canvas?.edges ?? []
-          if (!cancelled && (loadedNodes.length > 0 || loadedEdges.length > 0)) {
-            onNodesChange(loadedNodes.map((item) => ({ type: 'add', item })))
-            onEdgesChange(loadedEdges.map((item) => ({ type: 'add', item })))
-          }
+        if (!res.ok) throw new Error(`Canvas load failed: ${res.status}`)
+
+        const data = await res.json()
+        const canvas = data?.canvas as
+          | { nodes?: CanvasNode[]; edges?: CanvasEdge[] }
+          | null
+          | undefined
+        // Guard against legacy/corrupted blobs saved before server-side
+        // validation: only arrays are safe to `.map()` below.
+        const loadedNodes = Array.isArray(canvas?.nodes) ? canvas.nodes : []
+        const loadedEdges = Array.isArray(canvas?.edges) ? canvas.edges : []
+        if (cancelled) return
+        if (loadedNodes.length > 0 || loadedEdges.length > 0) {
+          onNodesChange(loadedNodes.map((item) => ({ type: 'add', item })))
+          onEdgesChange(loadedEdges.map((item) => ({ type: 'add', item })))
         }
+        // Enable autosave only after a successful load (an empty saved canvas
+        // is still a success — it just has nothing to hydrate).
+        setAutosaveEnabled(true)
       } catch {
-        // Ignore load failures — start with an empty canvas.
-      } finally {
-        if (!cancelled) setAutosaveEnabled(true)
+        // Load failed: keep autosave disabled so the first edit can't overwrite
+        // a saved canvas we couldn't read, and surface the failure.
+        if (!cancelled) setStatus('error')
       }
     })()
 
     return () => {
       cancelled = true
     }
-  }, [projectId, nodes, edges, onNodesChange, onEdgesChange])
+  }, [projectId, nodes, edges, onNodesChange, onEdgesChange, setStatus])
 
   const { saveNow } = useCanvasAutosave({
     projectId,
@@ -195,6 +201,7 @@ function CanvasFlow({ canvasRef, activeView, projectId }: CanvasFlowProps) {
 
   const [pulsingNodeId, setPulsingNodeId] = useState<string | null>(null)
   const pulseTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const paneRef    = useRef<HTMLDivElement>(null)
 
   const updateMyPresence = useUpdateMyPresence()
 
@@ -300,8 +307,9 @@ function CanvasFlow({ canvasRef, activeView, projectId }: CanvasFlowProps) {
         const screenX2 = screenX + nodeW * zoom
         const screenY2 = screenY + nodeH * zoom
 
-        const canvasW = window.innerWidth
-        const canvasH = window.innerHeight - 48 // minus 3rem navbar
+        const pane = paneRef.current?.getBoundingClientRect()
+        const canvasW = pane?.width  ?? window.innerWidth
+        const canvasH = pane?.height ?? window.innerHeight
 
         const isVisible =
           screenX  >= 0 &&
@@ -323,12 +331,12 @@ function CanvasFlow({ canvasRef, activeView, projectId }: CanvasFlowProps) {
       setPulsingNodeId(nodeId)
       pulseTimer.current = setTimeout(() => setPulsingNodeId(null), 800)
     },
-    [nodes, onNodesChange, flowInstance]
+    [nodes, onNodesChange, flowInstance, paneRef]
   )
 
   return (
     <PulseContext.Provider value={{ pulsingNodeId }}>
-      <div className="w-full h-full relative">
+      <div ref={paneRef} className="w-full h-full relative">
         {/* Component list — draggable overlay, top-center */}
         <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 20 }}>
           <div className="pointer-events-auto">

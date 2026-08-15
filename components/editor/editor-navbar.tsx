@@ -51,7 +51,7 @@ export function EditorNavbar({
         )}
       </div>
 
-      <div className="flex-1 flex justify-center">
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
         {projectName && (
           <div className="inline-flex items-center gap-0.5 rounded-md bg-base border border-surface-border p-0.5">
             <button
@@ -86,7 +86,7 @@ export function EditorNavbar({
         )}
       </div>
 
-      <div className="flex items-center gap-2 shrink-0">
+      <div className="ml-auto flex items-center gap-2 shrink-0">
         {projectName && saveIndicator}
         {projectName && (
           <Button

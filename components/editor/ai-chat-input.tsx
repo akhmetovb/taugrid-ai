@@ -43,8 +43,8 @@ export function AiChatInput({ onSend, onFocus, pulsing, value, onChange }: AiCha
           onKeyDown={handleKeyDown}
           placeholder="Message AI Engineer…"
           rows={1}
-          className="w-full resize-none bg-transparent text-sm text-copy-primary placeholder:text-copy-faint outline-none leading-relaxed overflow-hidden"
-          style={{ minHeight: '1.25rem', maxHeight: '9rem' }}
+          className="w-full resize-none bg-transparent text-sm text-copy-primary placeholder:text-copy-faint outline-none leading-relaxed overflow-y-auto"
+          style={{ minHeight: '1.25rem', maxHeight: '160px' }}
         />
       </div>
 

@@ -278,6 +278,7 @@ export function ComponentList({ nodes, onLocate }: ComponentListProps) {
               Components ({energyNodes.length})
             </span>
             <button
+              aria-label="Close"
               onMouseDown={(e) => e.stopPropagation()}
               onClick={() => { setExpanded(false); setSelectedNodeId(null) }}
               className="flex items-center justify-center rounded-lg p-0.5 text-copy-muted hover:text-copy-primary hover:bg-subtle transition-colors"
@@ -386,6 +387,7 @@ export function ComponentList({ nodes, onLocate }: ComponentListProps) {
                   <p className="text-[10px] text-copy-muted truncate">{selectedNode.data.label}</p>
                 </div>
                 <button
+                  aria-label="Close"
                   onMouseDown={(e) => e.stopPropagation()}
                   onClick={() => setSelectedNodeId(null)}
                   className="ml-2 shrink-0 flex items-center justify-center rounded-lg p-1 text-copy-muted hover:text-copy-primary hover:bg-subtle transition-colors"
@@ -405,7 +407,7 @@ export function ComponentList({ nodes, onLocate }: ComponentListProps) {
                     return (
                       <div key={pDef.key}>
                         <div className="flex items-center justify-between mb-1">
-                          <label className="text-[11px] font-medium text-copy-secondary">
+                          <label htmlFor={`param-${pDef.key}`} className="text-[11px] font-medium text-copy-secondary">
                             {pDef.label}
                             {pDef.unit && (
                               <span className="ml-1 text-copy-faint font-normal">({pDef.unit})</span>
@@ -422,6 +424,7 @@ export function ComponentList({ nodes, onLocate }: ComponentListProps) {
                         </div>
                         {pDef.inputType === 'select' ? (
                           <select
+                            id={`param-${pDef.key}`}
                             value={value}
                             onChange={(e) => setDraftParams((prev) => ({ ...prev, [pDef.key]: e.target.value }))}
                             onMouseDown={(e) => e.stopPropagation()}
@@ -434,6 +437,7 @@ export function ComponentList({ nodes, onLocate }: ComponentListProps) {
                           </select>
                         ) : (
                           <input
+                            id={`param-${pDef.key}`}
                             type={pDef.inputType === 'number' ? 'number' : 'text'}
                             value={value}
                             onChange={(e) => setDraftParams((prev) => ({ ...prev, [pDef.key]: e.target.value }))}
