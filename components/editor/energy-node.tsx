@@ -6,6 +6,7 @@ import { Icon } from '@iconify/react'
 import { useMutation } from '@liveblocks/react'
 import { COMPONENT_MAP, GROUP_COLORS, NODE_COLORS } from '@/types/canvas'
 import type { CanvasNode, ComponentGroup } from '@/types/canvas'
+import { usePulse } from './pulse-context'
 
 const GROUP_MIN: Record<string, { w: number; h: number }> = {
   control: { w: 60, h: 50 },
@@ -47,6 +48,9 @@ export function EnergyNode({ id, data, selected }: NodeProps<CanvasNode>) {
 
   const activeFill = fillColor ?? groupColors?.fill ?? '#1F1F1F'
   const activeText = textColor ?? groupColors?.text ?? '#EDEDED'
+
+  const { pulsingNodeId } = usePulse()
+  const isPulsing = pulsingNodeId === id
 
   const [nodeHovered, setNodeHovered] = useState(false)
   const [editing, setEditing]         = useState(false)
@@ -160,10 +164,20 @@ export function EnergyNode({ id, data, selected }: NodeProps<CanvasNode>) {
           background: activeFill,
           border: `1.5px solid ${activeText}`,
           padding: '6px 8px',
+          overflow: 'visible',
         }}
         onMouseEnter={() => setNodeHovered(true)}
         onMouseLeave={() => setNodeHovered(false)}
       >
+        {isPulsing && (
+          <div
+            className="node-pulse-ring absolute rounded-xl pointer-events-none"
+            style={{
+              inset: -6,
+              border: `2px solid ${activeText}`,
+            }}
+          />
+        )}
         <NodeResizer
           isVisible={selected}
           minWidth={minSize.w}

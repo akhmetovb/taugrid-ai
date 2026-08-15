@@ -9,8 +9,6 @@ import {
   type ReactNode,
 } from 'react'
 import {
-  LiveblocksProvider,
-  RoomProvider,
   useErrorListener,
   useLostConnectionListener,
 } from '@liveblocks/react'
@@ -158,35 +156,28 @@ function DropZone({ canvasRef, children }: DropZoneProps) {
 // ─── public component ──────────────────────────────────────────────────────────
 
 interface CanvasWrapperProps {
-  roomId: string
   activeView: 'canvas' | '3d'
+  projectId: string
 }
 
-export function CanvasWrapper({ roomId, activeView }: CanvasWrapperProps) {
+export function CanvasWrapper({ activeView, projectId }: CanvasWrapperProps) {
   const canvasRef = useRef<CanvasPort | null>(null)
 
   return (
-    <LiveblocksProvider authEndpoint="/api/liveblocks-auth">
-      <RoomProvider
-        id={roomId}
-        initialPresence={{ cursor: null, isThinking: false }}
-      >
-        <RoomConnectionGuard>
-          <CanvasErrorBoundary fallback={connectionErrorFallback}>
-            <ClientSideSuspense
-              fallback={
-                <div className="h-full flex items-center justify-center text-copy-muted text-sm">
-                  Connecting…
-                </div>
-              }
-            >
-              <DropZone canvasRef={canvasRef}>
-                <Canvas canvasRef={canvasRef} activeView={activeView} />
-              </DropZone>
-            </ClientSideSuspense>
-          </CanvasErrorBoundary>
-        </RoomConnectionGuard>
-      </RoomProvider>
-    </LiveblocksProvider>
+    <RoomConnectionGuard>
+      <CanvasErrorBoundary fallback={connectionErrorFallback}>
+        <ClientSideSuspense
+          fallback={
+            <div className="h-full flex items-center justify-center text-copy-muted text-sm">
+              Connecting…
+            </div>
+          }
+        >
+          <DropZone canvasRef={canvasRef}>
+            <Canvas canvasRef={canvasRef} activeView={activeView} projectId={projectId} />
+          </DropZone>
+        </ClientSideSuspense>
+      </CanvasErrorBoundary>
+    </RoomConnectionGuard>
   )
 }

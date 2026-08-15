@@ -8,18 +8,17 @@ export default function AuthMarketingPanel() {
           <span className="text-brand text-base font-bold">τ</span>
         </div>
         <span className="text-copy-primary font-semibold text-sm tracking-tight">
-          TauGrid AI
+          TasksFor AI
         </span>
       </div>
 
       <div className="flex-1 flex flex-col justify-center">
         <h1 className="text-2xl font-semibold text-copy-primary leading-snug mb-4">
-          GenAI Platform for Smart Energy Grids.
+          AI Platform for Energy Engineering.
         </h1>
         <p className="text-copy-muted text-sm leading-relaxed mb-10">
-          Describe your energy system in plain English. TauGrid AI transforms
-          it into a shared visual model, enabling your team to collaborate,
-          refine the design, and instantly generate a living digital twin.
+          Build your energy system in an AI-native engineering workspace. 
+          AI designs, analyzes, optimizes, and maintains a live digital twin of your energy system.
         </p>
 
         <ul className="space-y-6">
@@ -29,11 +28,10 @@ export default function AuthMarketingPanel() {
             </div>
             <div>
               <div className="text-copy-primary text-sm font-medium">
-                AI-native Development
+                AI-native Engineering
               </div>
               <div className="text-copy-muted text-xs mt-0.5 leading-relaxed">
-                Instantly convert system requirements into visual energy
-                layouts.
+                Instantly turn system requirements into visual energy architectures, analyze system performance, and iterate with AI assistance.
               </div>
             </div>
           </li>
@@ -46,8 +44,7 @@ export default function AuthMarketingPanel() {
                 Real-time Collaboration
               </div>
               <div className="text-copy-muted text-xs mt-0.5 leading-relaxed">
-                Work together on a shared canvas with live updates and
-                synchronized changes.
+                Collaborate in a shared AI-native engineering workspace with live updates and shared engineering context.
               </div>
             </div>
           </li>
@@ -60,8 +57,7 @@ export default function AuthMarketingPanel() {
                 Live Digital Twin
               </div>
               <div className="text-copy-muted text-xs mt-0.5 leading-relaxed">
-                Automatically keep your digital twin synchronized as your
-                energy system evolves.
+                Keep your digital twin automatically synchronized with every design change, ensuring your virtual model always reflects the latest system.
               </div>
             </div>
           </li>
@@ -69,7 +65,7 @@ export default function AuthMarketingPanel() {
       </div>
 
       <div className="text-copy-faint text-xs">
-        © 2026 TauGrid AI. All rights reserved.
+        © 2026 TasksFor AI. All rights reserved.
       </div>
     </div>
   );

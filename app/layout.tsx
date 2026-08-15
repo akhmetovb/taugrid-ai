@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TauGrid AI",
+  title: "TasksFor AI",
   description: "Digital twin platform for smart energy grids",
 };
 
